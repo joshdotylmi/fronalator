@@ -1,17 +1,29 @@
-$ENV:orgnetworks = "penis"
-$ENV:wghostname
-$ENV:orgdnsservers
-$ENV:wgpubkey
-$ENV:wgpsk
+$ENV:orgnetworks = "10.0.0.0/24"
+$ENV:wghostname = "66.117.128.224"
+$ENV:orgdnsservers = "1.1.1.1,8.8.8.8"
 #Probably have the below env varibles 
 $ENV:showui = "yes"
+function run-wgservercommand {
 
-if (Test-Path "C:\Program Files\WireGuard\wireguard.exe")
-{Write-Host "Is already installed"}
-else {
+    param (
+        [string[]]$terminalcmd
+    )
+    ssh.exe -vv wgkeygen@$ENV:wghostname -i sshkey -p 42042 -o StrictHostKeyChecking=no $terminalcmd
+
+    #start-process -Verbose  -wait -nonewwindow -FilePath "ssh.exe" -ArgumentList "-vv wgkeygen@$ENV:wghostname -i sshkey -p 42042 -o StrictHostKeyChecking=no $terminalcmd" -WorkingDirectory E:\Github\fronalator
+}
+
+#if (Test-Path "C:\Program Files\WireGuard\wireguard.exe")
+#{Write-Host "Is already installed"}
+#else {
     write-host "Attempting key gen"
     #God have mercy on my soul for I'm a foolish girl.
-    ssh.exe -i sshkey -p 42042  '( )' > /tmp/passwd
+    icacls .\sshkey /inheritance:r
+    icacls .\sshkey /grant SYSTEM:`(F`)
+    icacls .\sshkey /grant BUILTIN\Administrators:`(F`)
+    #icacls .\sshkey /grant azuread\josh.doty@lmi.net:`(F`)
+    #icacls .\sshkey /grant lmi\josh.doty@lmi.net:`(F`)
+    run-wgservercommand $("'"+"./genClient.sh "+$env:COMPUTERNAME+" "+$ENV:orgdnsservers+" "+ $ENV:orgnetworks+"'") 
 
     Get-Process -Name 'WireGuard' | Stop-Process -Force
     New-Item -Type Directory "C:\ProgramData\Wireguard" -Force
@@ -33,5 +45,5 @@ else {
 
 
 
-}
+#}
 
